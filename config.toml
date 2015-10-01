@@ -1,0 +1,10 @@
+baseurl = "http://safchain.github.io"
+languageCode = "en-us"
+title = "Sylvain Afchain's"
+theme = "purehugo"
+Paginate = 10
+
+[params]
+  twitterName = "s_afchain"
+  githubName = "safchain"
+  description = "Techs Notes"
