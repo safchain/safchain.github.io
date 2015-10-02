@@ -1,9 +1,0 @@
----
-contentdir: "content"
-layoutdir: "layouts"
-publishdir: "public"
-indexes:
-  baseurl: "http://safchain.github.io"
-  title: "Sylvain Afchain's Techs Notes"
-  canonifyurls: true
-  ...
