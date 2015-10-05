@@ -1,9 +1,20 @@
----
-contentdir: "content"
-layoutdir: "layouts"
-publishdir: "public"
-indexes:
-  baseurl: "http://safchain.github.io"
-  title: "Sylvain Afchain's Techs Notes"
-  canonifyurls: true
-  ...
+BaseUrl: "http://safchain.github.io"
+LanguageCode: "en-us"
+Title: "Sylvain Afhcain's Techs Notes"
+
+Params:
+  Author: "Sylvain Afchain"
+  DateForm: "Mon, Oct 5, 2015"
+  Twitter: "dim0627"
+  Github: "dim0627"
+  ShowRelatedPost: True
+  Disqus: "unresolved"
+  SyntaxHighlightTheme: "github.min.css"
+
+Indexes:
+  tag: "tags"
+
+permalinks:
+  post: /blog/:year/:month/:day/:slug/
+
+MetadataFormat: "yaml"

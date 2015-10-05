@@ -1,4 +1,4 @@
-[submodule "themes/purehugo"]
-	path = themes/purehugo
-	url = https://github.com/safchain/purehugo.git
+[submodule "themes/hugo_theme_beg"]
+	path = themes/hugo_theme_beg
+	url = https://github.com/safchain/hugo_theme_beg.git
 	branch = safchain

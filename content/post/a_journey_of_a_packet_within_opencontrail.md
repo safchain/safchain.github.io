@@ -2,6 +2,7 @@
 date = "2015-10-02T08:51:26+02:00"
 draft = false
 title = "A journey of a packet within OpenContrail"
+tags = ["SDN", "NFV", "OpenStack", "Neutron", "OpenContrail"]
 
 +++
 
@@ -25,7 +26,6 @@ For the data plane, OpenContrail supports GRE/VXLAN/UDP for the tunneling. OpenC
 {{% img-responsive "/images/a_journey_of_a_packet_within_opencontrail/image01.png" %}}
 
 In this post we will focus on the data plane area.
-
 
 The packet’s journey
 --------------------

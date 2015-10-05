@@ -1,95 +1,90 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A journey of a packet within OpenContrail &middot; Sylvain Afchain&#39;s</title>
+<!DOCTYPE html>
 
-    <meta name="description" content="">
+<meta charset="utf-8">
 
-    <meta name="generator" content="Hugo 0.14" />
-    <meta name="twitter:card" content="summary">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+<meta property="og:url" content="http://localhost:1313/">
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="A journey of a packet within OpenContrail &middot; Sylvain Afchain&#39;s">
+
+<meta property="og:site_name" content="Sylvain Afchain&#39;s">
+
+<title>
     
-    <meta name="twitter:title" content="A journey of a packet within OpenContrail &middot; Sylvain Afchain&#39;s">
-    <meta name="twitter:description" content="">
-
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="A journey of a packet within OpenContrail &middot; Sylvain Afchain&#39;s">
-    <meta property="og:description" content="">
-
-    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
-    <!--<![endif]-->
-
-    <link rel="stylesheet" href="http://safchain.github.io/css/all.min.css">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-
-    <link rel="alternate" type="application/rss+xml" title="Sylvain Afchain&#39;s" href="http://safchain.github.io/index.xml" />
-</head>
-<body>
+    A journey of a packet within OpenContrail
+    
+</title>
 
 
-<div id="layout" class="pure-g">
-    <div class="sidebar pure-u-1 pure-u-md-1-4">
-    <div class="header">
-        <hgroup>
-            <h1 class="brand-title"><a href="http://safchain.github.io">Sylvain Afchain&#39;s</a></h1>
-            <h2 class="brand-tagline"> Techs Notes </h2>
-        </hgroup>
-
-        <nav class="nav">
-            <ul class="nav-list">
-                
-                <li class="nav-item">
-                    <a class="pure-button" href="https://twitter.com/s_afchain"><i class="fa fa-twitter"></i> Twitter</a>
-                </li>
-                
-                
-                <li class="nav-item">
-                    <a class="pure-button" href="https://github.com/safchain "><i class="fa fa-github-alt"></i> github</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="pure-button" href="http://safchain.github.io/index.xml"><i class="fa fa-rss"></i> rss</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/">
+<link rel="stylesheet" href="http://localhost:1313//css/styles.css">
+<link rel="stylesheet" href="http://localhost:1313//css/custom.css">
 
 
-    <div class="content pure-u-1 pure-u-md-3-4">
-        <div>
-            
-            <div class="posts">
-                <h1 class="content-subhead">02 Oct 2015, 08:51</h1>
-                <section class="post">
-                    <header class="post-header">
+<link rel="shortcut icon" href="http://localhost:1313//assets/favicon.ico">
 
-                        <a href="http://safchain.github.io/networking/a_journey_of_a_packet_within_opencontrail/" class="post-title">A journey of a packet within OpenContrail</a>
 
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://localhost:1313//index.xml">
 
-                    <div class="post-share">
-                        <div class="post-share-links">
-                            <h4 style="">Share</h4>
-                            <a href="#" data-type="facebook" data-url="http://safchain.github.io/networking/a_journey_of_a_packet_within_opencontrail/" data-title="A journey of a packet within OpenContrail" data-description="" data-media="" class="prettySocial fa fa-facebook"></a>
-                            <a href="#" data-type="googleplus" data-url="http://safchain.github.io/networking/a_journey_of_a_packet_within_opencontrail/" data-description="" class="prettySocial fa fa-google-plus"></a>
-                            
-                            
-                        </div>
-                    </div>
-                    <div class="post-description">
+
+<div class="container">
+    <header class="nav">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="http://localhost:1313/">Sylvain Afchain&#39;s</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="http://localhost:1313//post">All Posts</a></li>
+                        <li><a href="http://localhost:1313//tags">Tags</a></li>
                         
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+<div class="row">
+    <div class="col-md-8">
+        <article class="post">
+
+            <header>
+                <div class="post-date">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                    <time datetime=02&#32;Oct&#32;2015,&#32;08:51>
+                    02 Oct 2015, 08:51
+                    </time>
+                </div>
+                <h1 class="post-title">
+                    <a href="http://localhost:1313/networking/a_journey_of_a_packet_within_opencontrail/">A journey of a packet within OpenContrail</a>
+                </h1>
+            </header>
+
+            <div class="post-content">
+                
 
 <p>In this post we will see how a packet generated by a VM is able to reach another VM or an external resource, what are the key concepts/components in the context of Neutron using the OpenContrail plugin. We will focus on OpenContrail, how it implements the overlay and the tools that it provides to check/troubleshoot how the packet are forwarded. Before getting started, I’ll give a little overview of the key concepts of OpenContrail.</p>
 
@@ -316,27 +311,160 @@ vif0/3      OS: tap8a39ff98-d3
 
 <p>This post was just an overview on how the packets are forwarded from one node to another and what are the interfaces/tools that you can use for troubleshooting purpose. One of the interesting thing with OpenContrail is that almost all the components have their own introspect interface helping you a lot during troubleshooting sessions. As we saw, the routing is fully distributed in OpenContrail, each vRouter handles a part of the routing using well known routing protocols like BGP/MPLS which proved their ability to scale.</p>
 
-                    </div>
-                    
-                </section>
             </div>
-            <div class="footer">
-    <div class="pure-menu pure-menu-horizontal pure-menu-open">
-        <ul>
-            <li>Powered by <a class="hugo" href="http://hugo.spf13.com/" target="_blank">hugo</a></li>
-        </ul>
+
+            <aside>
+                
+                <ul class="list-inline post-tags">
+                    
+                    <li>
+                        <a href="http://localhost:1313//tags/sdn">
+                            <i class="fa fa-tags"></i>
+                            SDN
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://localhost:1313//tags/nfv">
+                            <i class="fa fa-tags"></i>
+                            NFV
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://localhost:1313//tags/openstack">
+                            <i class="fa fa-tags"></i>
+                            OpenStack
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://localhost:1313//tags/neutron">
+                            <i class="fa fa-tags"></i>
+                            Neutron
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://localhost:1313//tags/opencontrail">
+                            <i class="fa fa-tags"></i>
+                            OpenContrail
+                        </a>
+                    </li>
+                    
+                </ul>
+
+                
+            
+            <footer>
+
+                <nav>
+                    <ul class="pager">
+
+                        
+                        <li class="previous"><a href="http://localhost:1313/networking/opencontrail_on_the_controller_side/"><span aria-hidden="true">&larr;</span> Older</a></li>
+                        
+
+                        <li><a href="http://localhost:1313//post">All Posts</a></li>
+
+                        
+                        <li class="next disabled"><a href="#">Newer <span aria-hidden="true">&rarr;</span></a></li>
+                        
+
+                    </ul>
+                </nav>
+
+                
+            </footer>
+
+        </article>
     </div>
-</div>
-<script src="http://safchain.github.io/js/all.min.js"></script>
+    <div class="col-md-4">
+        
+<aside>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-4 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Recent Posts</h2>
+                </div>
+                <div class="list-group">
+                    
+                    <a href="/networking/opencontrail_on_the_controller_side/" class="list-group-item">Opencontrail on the Controller side</a>
+                    
+                    <a href="/networking/a_journey_of_a_packet_within_opencontrail/" class="list-group-item">A journey of a packet within OpenContrail</a>
+                    
+                </div>
+            </div>
         </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Tags</h2>
+                </div>
+                <div class="list-group">
+                    
+                    
+                    
+                    <a href="http://localhost:1313//tags/neutron" class="list-group-item">
+                        <span class="badge">2</span>
+                        neutron
+                    </a>
+                    
+                    
+                    <a href="http://localhost:1313//tags/nfv" class="list-group-item">
+                        <span class="badge">2</span>
+                        nfv
+                    </a>
+                    
+                    
+                    <a href="http://localhost:1313//tags/opencontrail" class="list-group-item">
+                        <span class="badge">2</span>
+                        opencontrail
+                    </a>
+                    
+                    
+                    <a href="http://localhost:1313//tags/openstack" class="list-group-item">
+                        <span class="badge">2</span>
+                        openstack
+                    </a>
+                    
+                    
+                    <a href="http://localhost:1313//tags/sdn" class="list-group-item">
+                        <span class="badge">2</span>
+                        sdn
+                    </a>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+</aside>
+
     </div>
 </div>
 
+</div>
+<hr>
+
+<footer class="container copy">
+    <p>&copy; 2015  Sylvain Afchain&#39;s </p>
+	<p>Powered by <a href="http://gohugo.io" target="_blank">Hugo</a></p>
+	<p>Theme <a href="https://github.com/dim0627/hugo_theme_hugostrap" target="_blank">Hugostrap</a> designed by <a href="http://yet.unresolved.xyz" target="_blank">Daisuke Tsuji</a>, Inspired from <a href="https://github.com/kAworu/octostrap3" target="_blank">Octostrap3</a></p>
+</footer>
+
+<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
 ga('create', '', 'auto');
@@ -344,5 +472,7 @@ ga('send', 'pageview');
 
 </script>
 
-</body>
-</html>
+<script>
+document.write('<script src="//sharebutton.net/plugin/sharebutton.php?type=horizontal&u=' + encodeURIComponent(document.location.href) + '"></scr' + 'ipt>');
+</script>
+
