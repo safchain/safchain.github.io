@@ -16,7 +16,7 @@ Some requierements and recommendations about the sizing of the VM for your insta
 All-In-One node
 ---------------
 
-Below a script that just leverages the explaination that you can find [hehre](https://github.com/Juniper/contrail-installer). Basically this script is creating a localrc file that the [contrail-installer](https://github.com/Juniper/contrail-installer) will use. Then it starts to build the whole solution. Finally it instanciates a devstack providing a correct local.conf. You will notice that this script does some weird stuffs like removing/upgrading some packages, this is here to fix dependencies issues.
+Below a script that just leverages the explaination that you can find [here](https://github.com/Juniper/contrail-installer). Basically this script is creating a localrc file that the [contrail-installer](https://github.com/Juniper/contrail-installer) will use. Then it starts to build the whole solution. Finally it instanciates a devstack providing a correct local.conf. You will notice that this script does some weird stuffs like removing/upgrading some packages, this is here to fix dependencies issues.
 
 ```shell
 #!/bin/bash
