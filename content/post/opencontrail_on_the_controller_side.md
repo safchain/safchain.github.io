@@ -5,7 +5,7 @@ tags = ["SDN", "NFV", "OpenStack", "Neutron", "OpenContrail"]
 
 +++
 
-*Original post I wrote [here](http://blogs.rdoproject.org/7793/opencontrail-on-the-controller-side)*
+*Original post I wrote [here](http://blogs.rdoproject.org/7793/opencontrail-on-the-controller-side).*
 
 In my previous [post](/post/a_journey_of_a_packet_within_opencontrail/) I explained how packets are forwarded from point to point within OpenContrail. We saw the tools available to check what are the routes involved in the forwarding. Last time we focused on the agent side but now we are going to understand on another key component: the controller..
 
