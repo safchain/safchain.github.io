@@ -6,8 +6,248 @@
     <language>en-us</language>
     <author>Sylvain Afchain</author>
     <rights>(C) 2015</rights>
-    <updated>2015-10-05 22:40:48 &#43;0200 CEST</updated>
+    <updated>2015-10-17 18:04:26 &#43;0200 CEST</updated>
 
+    
+      
+        <item>
+          <title>OpenContrail DevStack</title>
+          <link>http://safchain.github.io/blog/2015/10/17/opencontrail-devstack/</link>
+          <pubDate>Sat, 17 Oct 2015 18:04:26 CEST</pubDate>
+          <author>Sylvain Afchain</author>
+          <guid>http://safchain.github.io/blog/2015/10/17/opencontrail-devstack/</guid>
+          <description>
+
+&lt;p&gt;Some people asked me on IRC how to deploy an OpenContrail DevStack. So in this post I will provide two scripts in order to bootstrap such deployments, in a single node way or in a two nodes way.&lt;/p&gt;
+
+&lt;h2 id=&#34;setup:0f62593a72a2c23f7ef3061c4673a32f&#34;&gt;Setup&lt;/h2&gt;
+
+&lt;p&gt;Some requierements and recommendations about the sizing of the VM for your installation. The build process of Opencontrail is quite long so don&amp;rsquo;t hesitate to create a VM with more than one CPUi and at least 4Go of ram. I would suggest to have at least 2 network interfaces, OpenContrail can be installed with only one interface but if you plan to debug you will be more confident with an admin and user interface.&lt;/p&gt;
+
+&lt;h2 id=&#34;all-in-one-node:0f62593a72a2c23f7ef3061c4673a32f&#34;&gt;All-In-One node&lt;/h2&gt;
+
+&lt;p&gt;Below a script that just leverages the explaination that you can find &lt;a href=&#34;https://github.com/Juniper/contrail-installer&#34;&gt;hehre&lt;/a&gt;. Basically this script is creating a localrc file that the &lt;a href=&#34;https://github.com/Juniper/contrail-installer&#34;&gt;contrail-installer&lt;/a&gt; will use. Then it starts to build the whole solution. Finally it instanciates a devstack providing a correct local.conf. You will notice that this script does some weird stuffs like removing/upgrading some packages, this is here to fix dependencies issues.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;#!/bin/bash
+
+if [ -z &amp;quot;$2&amp;quot; ]
+then
+    echo &amp;quot;Usage: $0 &amp;lt;username@hostname&amp;gt; &amp;lt;interface&amp;gt;&amp;quot;
+    exit -1
+fi
+
+HOST=$1
+INTF=$2
+
+# OpenContrail localrc file
+LOCALRC=$(cat &amp;lt;&amp;lt;&#39;
+USE_SCREEN=True
+STACK_DIR=\$(cd \$(dirname \$0) &amp;amp;&amp;amp; pwd)
+LOG_LEVEL=3
+LOG_DIR=\$STACK_DIR/log/screens
+LOGFILE=\$STACK_DIR/log/contrail.log
+LOGDAYS=1
+
+ADMIN_PASSWORD=contrail123
+
+RABBIT_USER=stackrabbit
+RABBIT_PASSWORD=\$ADMIN_PASSWORD
+
+SERVICE_TIMEOUT=90
+SERVICE_HOST=$IP
+
+INSTALL_PROFILE=ALL
+
+PHYSICAL_INTERFACE=$INTF
+
+CASS_MAX_HEAP_SIZE=128M
+CASS_HEAP_NEWSIZE=20M
+
+CONTRAIL_DEFAULT_INSTALL=False
+
+CONTRAIL_REPO_PROTO=https
+NB_JOBS=4
+&#39;)
+
+# Devstack local.conf file
+LOCALCONF=$(cat &amp;lt;&amp;lt;&#39;
+[[local|localrc]]
+RECLONE=yes
+
+HOST_IP=$IP
+
+PASSWORD=contrail123
+ADMIN_PASSWORD=\$PASSWORD
+MYSQL_PASSWORD=\$PASSWORD
+RABBIT_PASSWORD=\$PASSWORD
+SERVICE_PASSWORD=\$PASSWORD
+SERVICE_TOKEN=token
+MULTI_HOST=1
+
+disable_service n-net tempest heat ec2
+enable_service q-svc n-cpu key
+Q_PLUGIN=opencontrail
+
+NOVA_VIF_DRIVER=nova_contrail_vif.contrailvif.VRouterVIFDriver
+LIBVIRT_FIREWALL_DRIVER=&amp;quot; &amp;quot;
+
+KEYSTONE_USE_MOD_WSGI=False
+
+LOGFILE=\$DEST/logs/stack.sh.log
+LOGDAYS=1
+SCREEN_LOGDIR=\$DEST/logs/screen
+&#39;)
+
+# OpenContrail Install
+ssh $1 &amp;lt;&amp;lt;EOF
+    export IP=\$(ip addr | grep -E &#39;inet.*$INTF&#39; | awk &#39;{print \$2}&#39; | cut -d &#39;/&#39; -f 1)
+    export INTF=$INTF
+
+    sudo apt-get install -y git
+    ls contrail-installer || git clone \
+        http://github.com/juniper/contrail-installer.git
+    echo -e &amp;quot;$LOCALRC&amp;quot; &amp;gt; contrail-installer/localrc
+    cd contrail-installer
+    ./contrail.sh build
+    ./contrail.sh build
+    ./contrail.sh install
+    ./contrail.sh configure
+    sudo pip install &amp;quot;greenlet&amp;gt;=0.4.7&amp;quot; --upgrade
+    ./contrail.sh start
+
+    sleep 30
+    cd ..
+
+    ls devstack || git clone http://github.com/openstack-dev/devstack.git
+    echo -e &amp;quot;$LOCALCONF&amp;quot; &amp;gt; devstack/local.conf
+    sudo apt-get remove --purge -y python-pastedeploy
+    cd devstack
+    ./unstack.sh
+    cp cp ../contrail-installer/devstack/lib/neutron_thirdparty/opencontrail \
+        lib/neutron_thirdparty/opencontrail
+    cp ../contrail-installer/devstack/lib/neutron_plugins/opencontrail \
+        lib/neutron_plugins/opencontrail
+    ./stack.sh
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;compute-node:0f62593a72a2c23f7ef3061c4673a32f&#34;&gt;Compute node&lt;/h2&gt;
+
+&lt;p&gt;Below almost the same script, but this one will start what is needed for a compute node.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;#!/bin/bash
+
+if [ -z &amp;quot;$3&amp;quot; ]
+then
+    echo &amp;quot;Usage: $0 &amp;lt;username@hostname&amp;gt; &amp;lt;interface&amp;gt; &amp;lt;controller ip&amp;gt;&amp;quot;
+    exit -1
+fi
+
+HOST=$1
+INTF=$2
+CTL=$3
+
+# OpenContrail localrc file
+LOCALRC=$(cat &amp;lt;&amp;lt;&amp;lt;&#39;
+USE_SCREEN=True
+STACK_DIR=\$(cd \$(dirname \$0) &amp;amp;&amp;amp; pwd)
+LOG_LEVEL=3
+LOG_DIR=\$STACK_DIR/log/screens
+LOGFILE=\$STACK_DIR/log/contrail.log
+LOGDAYS=1
+
+ADMIN_PASSWORD=contrail123
+
+RABBIT_USER=stackrabbit
+RABBIT_PASSWORD=\$ADMIN_PASSWORD
+
+SERVICE_TIMEOUT=90
+SERVICE_HOST=$CTL
+COMPUTE_HOST_IP=$IP
+
+INSTALL_PROFILE=COMPUTE
+
+PHYSICAL_INTERFACE=$INTF
+
+CASS_MAX_HEAP_SIZE=128M
+CASS_HEAP_NEWSIZE=20M
+
+CONTRAIL_DEFAULT_INSTALL=False
+
+CONTRAIL_REPO_PROTO=https
+NB_JOBS=4
+&#39;)
+
+# Devstack local.conf file
+LOCALCONF=$(cat &amp;lt;&amp;lt;&amp;lt;&#39;
+[[local|localrc]]
+RECLONE=yes
+
+HOST_IP=$IP
+
+PASSWORD=contrail123
+ADMIN_PASSWORD=\$PASSWORD
+MYSQL_PASSWORD=\$PASSWORD
+RABBIT_PASSWORD=\$PASSWORD
+SERVICE_PASSWORD=\$PASSWORD
+SERVICE_TOKEN=token
+MULTI_HOST=1
+
+NOVA_VIF_DRIVER=nova_contrail_vif.contrailvif.VRouterVIFDriver
+LIBVIRT_FIREWALL_DRIVER=&amp;quot; &amp;quot;
+
+ENABLED_SERVICES=n-cpu,neutron
+
+SERVICE_HOST=$CTL
+MYSQL_HOST=\$SERVICE_HOST
+RABBIT_HOST=\$SERVICE_HOST
+Q_HOST=\$SERVICE_HOST
+GLANCE_HOSTPORT=\$SERVICE_HOST:9292
+
+VNCSERVER_PROXYCLIENT_ADDRESS=\$HOST_IP
+VNCSERVER_LISTEN=0.0.0.0
+
+LOGFILE=\$DEST/logs/stack.sh.log
+LOGDAYS=1
+SCREEN_LOGDIR=\$DEST/logs/screen
+&#39;)
+
+# OpenContrail Install
+ssh $1 &amp;lt;&amp;lt;EOF
+    export IP=\$(ip addr | grep -E &#39;inet.*$INTF&#39; | awk &#39;{print \$2}&#39; | cut -d &#39;/&#39; -f 1)
+    export INTF=$INTF
+    export CTL=$CTL
+
+    sudo apt-get install -y git
+    ls contrail-installer || git clone \
+        http://github.com/juniper/contrail-installer.git
+    echo -e &amp;quot;$LOCALRC&amp;quot; &amp;gt; contrail-installer/localrc
+    cd contrail-installer
+    ./contrail.sh build
+    ./contrail.sh build
+    ./contrail.sh install
+    ./contrail.sh configure
+    sudo pip install &amp;quot;greenlet&amp;gt;=0.4.7&amp;quot; --upgrade
+    ./contrail.sh start
+
+    sleep 30
+    cd ..
+
+    ls devstack || git clone http://github.com/openstack-dev/devstack.git
+    echo -e &amp;quot;$LOCALCONF&amp;quot; &amp;gt; devstack/local.conf
+    sudo apt-get remove --purge -y python-pastedeploy
+    cd devstack
+    ./unstack.sh
+    cp cp ../contrail-installer/devstack/lib/neutron_thirdparty/opencontrail \
+        lib/neutron_thirdparty/opencontrail
+    cp ../contrail-installer/devstack/lib/neutron_plugins/opencontrail \
+        lib/neutron_plugins/opencontrail
+    ./stack.sh
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+        </item>
+      
     
       
         <item>
