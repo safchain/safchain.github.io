@@ -97,6 +97,8 @@
             <div class="post-content">
                 
 
+<p><em>Original post I wrote <a href="http://blogs.rdoproject.org/7793/opencontrail-on-the-controller-side">here</a></em></p>
+
 <p>In my previous <a href="/post/a_journey_of_a_packet_within_opencontrail/">post</a> I explained how packets are forwarded from point to point within OpenContrail. We saw the tools available to check what are the routes involved in the forwarding. Last time we focused on the agent side but now we are going to understand on another key component: the controller..</p>
 
 <p>The controller acts as a Route Reflector, announcing routes according to what has been done on the Config/API side and the peering nodes. As we saw in the dataplane post, the controller is using BGP or XMPP in order to exchange routes. XMPP is used between the controllers and the vRouters, BGP is used between the controllers and the gateway routers. One more thing about XMPP, even if it is used for route announcements this is not its only goal. It is used for some other purposes like Service-Chaining, Virtual-Machine related informations, etc.</p>
