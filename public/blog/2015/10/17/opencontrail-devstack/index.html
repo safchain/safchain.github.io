@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8">
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+<meta property="og:url" content="http://safchain.github.io">
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenContrail DevStack &middot; Sylvain Afhcain&#39;s Techs Notes">
+
+<meta property="og:site_name" content="Sylvain Afhcain&#39;s Techs Notes">
+
+<title>
+    
+    OpenContrail DevStack
+    
+</title>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/github.min.css">
+<link rel="stylesheet" href="http://safchain.github.io/css/styles.css">
+<link rel="stylesheet" href="http://safchain.github.io/css/custom.css">
+
+
+<link rel="shortcut icon" href="http://safchain.github.io/assets/favicon.ico">
+
+
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://safchain.github.io/index.xml">
+
+
+<div class="container">
+    <header class="nav">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="http://safchain.github.io">Sylvain Afhcain&#39;s Techs Notes</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        
+                        <li>
+                            <a href="https://twitter.com/dim0627" target="_blank">
+                                <i class="fa fa-twitter-square"></i>
+                                Twitter</a>
+                        </li>
+                        
+                        
+                        <li>
+                            <a href="https://github.com/dim0627" target="_blank">
+                                <i class="fa fa-github-square"></i>
+                                GitHub
+                            </a>
+                        </li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+<div class="row">
+    <div class="col-md-8">
+        <article class="post">
+
+            <header>
+                <div class="post-date">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                    <time datetime=17&#32;Oct&#32;2015,&#32;18:04>
+                    17 Oct 2015, 18:04
+                    </time>
+                </div>
+                <h1 class="post-title">
+                    <a href="http://safchain.github.io/blog/2015/10/17/opencontrail-devstack/">OpenContrail DevStack</a>
+                </h1>
+            </header>
+
+            <div class="post-content">
+                
+
+<p>Some people asked me on IRC how to deploy an OpenContrail DevStack. So in this post I will provide two scripts in order to bootstrap such deployments, in a single node way or in a two nodes way.</p>
+
+<h2 id="setup:0f62593a72a2c23f7ef3061c4673a32f">Setup</h2>
+
+<p>Some requierements and recommendations about the sizing of the VM for your installation. The build process of Opencontrail is quite long so don&rsquo;t hesitate to create a VM with more than one CPUi and at least 4Go of ram. I would suggest to have at least 2 network interfaces, OpenContrail can be installed with only one interface but if you plan to debug you will be more confident with an admin and user interface.</p>
+
+<h2 id="all-in-one-node:0f62593a72a2c23f7ef3061c4673a32f">All-In-One node</h2>
+
+<p>Below a script that just leverages the explaination that you can find <a href="https://github.com/Juniper/contrail-installer">hehre</a>. Basically this script is creating a localrc file that the <a href="https://github.com/Juniper/contrail-installer">contrail-installer</a> will use. Then it starts to build the whole solution. Finally it instanciates a devstack providing a correct local.conf. You will notice that this script does some weird stuffs like removing/upgrading some packages, this is here to fix dependencies issues.</p>
+
+<pre><code class="language-shell">#!/bin/bash
+
+if [ -z &quot;$2&quot; ]
+then
+    echo &quot;Usage: $0 &lt;username@hostname&gt; &lt;interface&gt;&quot;
+    exit -1
+fi
+
+HOST=$1
+INTF=$2
+
+# OpenContrail localrc file
+LOCALRC=$(cat &lt;&lt;'
+USE_SCREEN=True
+STACK_DIR=\$(cd \$(dirname \$0) &amp;&amp; pwd)
+LOG_LEVEL=3
+LOG_DIR=\$STACK_DIR/log/screens
+LOGFILE=\$STACK_DIR/log/contrail.log
+LOGDAYS=1
+
+ADMIN_PASSWORD=contrail123
+
+RABBIT_USER=stackrabbit
+RABBIT_PASSWORD=\$ADMIN_PASSWORD
+
+SERVICE_TIMEOUT=90
+SERVICE_HOST=$IP
+
+INSTALL_PROFILE=ALL
+
+PHYSICAL_INTERFACE=$INTF
+
+CASS_MAX_HEAP_SIZE=128M
+CASS_HEAP_NEWSIZE=20M
+
+CONTRAIL_DEFAULT_INSTALL=False
+
+CONTRAIL_REPO_PROTO=https
+NB_JOBS=4
+')
+
+# Devstack local.conf file
+LOCALCONF=$(cat &lt;&lt;'
+[[local|localrc]]
+RECLONE=yes
+
+HOST_IP=$IP
+
+PASSWORD=contrail123
+ADMIN_PASSWORD=\$PASSWORD
+MYSQL_PASSWORD=\$PASSWORD
+RABBIT_PASSWORD=\$PASSWORD
+SERVICE_PASSWORD=\$PASSWORD
+SERVICE_TOKEN=token
+MULTI_HOST=1
+
+disable_service n-net tempest heat ec2
+enable_service q-svc n-cpu key
+Q_PLUGIN=opencontrail
+
+NOVA_VIF_DRIVER=nova_contrail_vif.contrailvif.VRouterVIFDriver
+LIBVIRT_FIREWALL_DRIVER=&quot; &quot;
+
+KEYSTONE_USE_MOD_WSGI=False
+
+LOGFILE=\$DEST/logs/stack.sh.log
+LOGDAYS=1
+SCREEN_LOGDIR=\$DEST/logs/screen
+')
+
+# OpenContrail Install
+ssh $1 &lt;&lt;EOF
+    export IP=\$(ip addr | grep -E 'inet.*$INTF' | awk '{print \$2}' | cut -d '/' -f 1)
+    export INTF=$INTF
+
+    sudo apt-get install -y git
+    ls contrail-installer || git clone \
+        http://github.com/juniper/contrail-installer.git
+    echo -e &quot;$LOCALRC&quot; &gt; contrail-installer/localrc
+    cd contrail-installer
+    ./contrail.sh build
+    ./contrail.sh build
+    ./contrail.sh install
+    ./contrail.sh configure
+    sudo pip install &quot;greenlet&gt;=0.4.7&quot; --upgrade
+    ./contrail.sh start
+
+    sleep 30
+    cd ..
+
+    ls devstack || git clone http://github.com/openstack-dev/devstack.git
+    echo -e &quot;$LOCALCONF&quot; &gt; devstack/local.conf
+    sudo apt-get remove --purge -y python-pastedeploy
+    cd devstack
+    ./unstack.sh
+    cp cp ../contrail-installer/devstack/lib/neutron_thirdparty/opencontrail \
+        lib/neutron_thirdparty/opencontrail
+    cp ../contrail-installer/devstack/lib/neutron_plugins/opencontrail \
+        lib/neutron_plugins/opencontrail
+    ./stack.sh
+EOF
+</code></pre>
+
+<h2 id="compute-node:0f62593a72a2c23f7ef3061c4673a32f">Compute node</h2>
+
+<p>Below almost the same script, but this one will start what is needed for a compute node.</p>
+
+<pre><code class="language-shell">#!/bin/bash
+
+if [ -z &quot;$3&quot; ]
+then
+    echo &quot;Usage: $0 &lt;username@hostname&gt; &lt;interface&gt; &lt;controller ip&gt;&quot;
+    exit -1
+fi
+
+HOST=$1
+INTF=$2
+CTL=$3
+
+# OpenContrail localrc file
+LOCALRC=$(cat &lt;&lt;&lt;'
+USE_SCREEN=True
+STACK_DIR=\$(cd \$(dirname \$0) &amp;&amp; pwd)
+LOG_LEVEL=3
+LOG_DIR=\$STACK_DIR/log/screens
+LOGFILE=\$STACK_DIR/log/contrail.log
+LOGDAYS=1
+
+ADMIN_PASSWORD=contrail123
+
+RABBIT_USER=stackrabbit
+RABBIT_PASSWORD=\$ADMIN_PASSWORD
+
+SERVICE_TIMEOUT=90
+SERVICE_HOST=$CTL
+COMPUTE_HOST_IP=$IP
+
+INSTALL_PROFILE=COMPUTE
+
+PHYSICAL_INTERFACE=$INTF
+
+CASS_MAX_HEAP_SIZE=128M
+CASS_HEAP_NEWSIZE=20M
+
+CONTRAIL_DEFAULT_INSTALL=False
+
+CONTRAIL_REPO_PROTO=https
+NB_JOBS=4
+')
+
+# Devstack local.conf file
+LOCALCONF=$(cat &lt;&lt;&lt;'
+[[local|localrc]]
+RECLONE=yes
+
+HOST_IP=$IP
+
+PASSWORD=contrail123
+ADMIN_PASSWORD=\$PASSWORD
+MYSQL_PASSWORD=\$PASSWORD
+RABBIT_PASSWORD=\$PASSWORD
+SERVICE_PASSWORD=\$PASSWORD
+SERVICE_TOKEN=token
+MULTI_HOST=1
+
+NOVA_VIF_DRIVER=nova_contrail_vif.contrailvif.VRouterVIFDriver
+LIBVIRT_FIREWALL_DRIVER=&quot; &quot;
+
+ENABLED_SERVICES=n-cpu,neutron
+
+SERVICE_HOST=$CTL
+MYSQL_HOST=\$SERVICE_HOST
+RABBIT_HOST=\$SERVICE_HOST
+Q_HOST=\$SERVICE_HOST
+GLANCE_HOSTPORT=\$SERVICE_HOST:9292
+
+VNCSERVER_PROXYCLIENT_ADDRESS=\$HOST_IP
+VNCSERVER_LISTEN=0.0.0.0
+
+LOGFILE=\$DEST/logs/stack.sh.log
+LOGDAYS=1
+SCREEN_LOGDIR=\$DEST/logs/screen
+')
+
+# OpenContrail Install
+ssh $1 &lt;&lt;EOF
+    export IP=\$(ip addr | grep -E 'inet.*$INTF' | awk '{print \$2}' | cut -d '/' -f 1)
+    export INTF=$INTF
+    export CTL=$CTL
+
+    sudo apt-get install -y git
+    ls contrail-installer || git clone \
+        http://github.com/juniper/contrail-installer.git
+    echo -e &quot;$LOCALRC&quot; &gt; contrail-installer/localrc
+    cd contrail-installer
+    ./contrail.sh build
+    ./contrail.sh build
+    ./contrail.sh install
+    ./contrail.sh configure
+    sudo pip install &quot;greenlet&gt;=0.4.7&quot; --upgrade
+    ./contrail.sh start
+
+    sleep 30
+    cd ..
+
+    ls devstack || git clone http://github.com/openstack-dev/devstack.git
+    echo -e &quot;$LOCALCONF&quot; &gt; devstack/local.conf
+    sudo apt-get remove --purge -y python-pastedeploy
+    cd devstack
+    ./unstack.sh
+    cp cp ../contrail-installer/devstack/lib/neutron_thirdparty/opencontrail \
+        lib/neutron_thirdparty/opencontrail
+    cp ../contrail-installer/devstack/lib/neutron_plugins/opencontrail \
+        lib/neutron_plugins/opencontrail
+    ./stack.sh
+EOF
+</code></pre>
+
+            </div>
+
+            <aside>
+                
+                <ul class="list-inline post-tags">
+                    
+                    <li>
+                        <a href="http://safchain.github.io/tags/sdn">
+                            <i class="fa fa-tags"></i>
+                            SDN
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://safchain.github.io/tags/nfv">
+                            <i class="fa fa-tags"></i>
+                            NFV
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://safchain.github.io/tags/openstack">
+                            <i class="fa fa-tags"></i>
+                            OpenStack
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://safchain.github.io/tags/neutron">
+                            <i class="fa fa-tags"></i>
+                            Neutron
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://safchain.github.io/tags/opencontrail">
+                            <i class="fa fa-tags"></i>
+                            OpenContrail
+                        </a>
+                    </li>
+                    
+                </ul>
+
+                
+                
+                <h3>Related Post</h3>
+                <ul class="post-rels">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <li><a href="http://safchain.github.io/blog/2015/10/05/opencontrail-on-the-controller-side/">Opencontrail on the Controller side</a></li>
+                    
+                    
+                    
+                    
+                    
+                    <li><a href="http://safchain.github.io/blog/2015/10/02/a-journey-of-a-packet-within-opencontrail/">A journey of a packet within OpenContrail</a></li>
+                    
+                    
+                </ul>
+            </aside>
+            
+            
+            <footer>
+
+                <nav>
+                    <ul class="pager">
+
+                        
+                        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Older</a></li>
+                        
+
+                        <li><a href="http://safchain.github.io/post">All Posts</a></li>
+
+                        
+                        <li class="next"><a href="http://safchain.github.io/blog/2015/10/05/opencontrail-on-the-controller-side/">Newer <span aria-hidden="true">&rarr;</span></a></li>
+                        
+
+                    </ul>
+                </nav>
+
+                
+                
+                
+            </footer>
+
+        </article>
+    </div>
+    <div class="col-md-4">
+        
+<aside>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-4 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Recent Posts</h2>
+                </div>
+                <div class="list-group">
+                    
+                    <a href="/blog/2015/10/17/opencontrail-devstack/" class="list-group-item">OpenContrail DevStack</a>
+                    
+                    <a href="/blog/2015/10/05/opencontrail-on-the-controller-side/" class="list-group-item">Opencontrail on the Controller side</a>
+                    
+                    <a href="/blog/2015/10/02/a-journey-of-a-packet-within-opencontrail/" class="list-group-item">A journey of a packet within OpenContrail</a>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Tags</h2>
+                </div>
+                <div class="list-group">
+                    
+                    
+                    
+                    <a href="http://safchain.github.io/tags/neutron" class="list-group-item">
+                        <span class="badge">3</span>
+                        neutron
+                    </a>
+                    
+                    
+                    <a href="http://safchain.github.io/tags/nfv" class="list-group-item">
+                        <span class="badge">3</span>
+                        nfv
+                    </a>
+                    
+                    
+                    <a href="http://safchain.github.io/tags/opencontrail" class="list-group-item">
+                        <span class="badge">3</span>
+                        opencontrail
+                    </a>
+                    
+                    
+                    <a href="http://safchain.github.io/tags/openstack" class="list-group-item">
+                        <span class="badge">3</span>
+                        openstack
+                    </a>
+                    
+                    
+                    <a href="http://safchain.github.io/tags/sdn" class="list-group-item">
+                        <span class="badge">3</span>
+                        sdn
+                    </a>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+</aside>
+
+    </div>
+</div>
+
+</div>
+<hr>
+
+<footer class="container copy">
+    <p>&copy; 2015  Sylvain Afchain </p>
+	<p>Powered by <a href="http://gohugo.io" target="_blank">Hugo</a></p>
+	<p>Theme <a href="https://github.com/dim0627/hugo_theme_hugostrap" target="_blank">Hugostrap</a> designed by <a href="http://yet.unresolved.xyz" target="_blank">Daisuke Tsuji</a>, Inspired from <a href="https://github.com/kAworu/octostrap3" target="_blank">Octostrap3</a></p>
+</footer>
+
+<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+<script>
+document.write('<script src="//sharebutton.net/plugin/sharebutton.php?type=horizontal&u=' + encodeURIComponent(document.location.href) + '"></scr' + 'ipt>');
+</script>
+
